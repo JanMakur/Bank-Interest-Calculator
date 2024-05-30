@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interest Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            transition: background-color 0.3s;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: left;
+        }
+        /* Light mode */
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: #f0f0f0;
+            }
+            .container {
+                background-color: white;
+            }
+            input, select, button {
+                background-color: white;
+                color: black;
+            }
+        }
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+            }
+            .container {
+                background-color: #1e1e1e;
+                color: white;
+            }
+            input, select, button {
+                background-color: #333;
+                color: white;
+                border: 1px solid #444;
+            }
+            .result {
+                background-color: #333;
+                color: white;
+                border: 1px solid #444;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Interest Calculator</h1>
+    <label for="interestType">Select Interest Type:</label>
+    <select id="interestType" onchange="showForm()">
+        <option value="">Select...</option>
+        <option value="simple">Saving Account</option>
+        <option value="compound">Fixed Deposit</option>
+        <option value="recurring">Recurring Deposit</option>
+    </select>
+
+    <div id="formContainer"></div>
+    <div id="resultContainer" class="result"></div>
+</div>
+
+<script>
+    function showForm() {
+        const formContainer = document.getElementById('formContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        formContainer.innerHTML = '';
+        resultContainer.innerHTML = '';
+
+        const interestType = document.getElementById('interestType').value;
+        if (interestType === 'simple') {
+            formContainer.innerHTML = `
+                <input type="number" id="principal" placeholder="Principal Amount">
+                <input type="number" id="rate" placeholder="Rate of Interest (%)">
+                <input type="number" id="years" placeholder="Number of Years">
+                <button onclick="calculateCompoundInterest()">Calculate</button>
+            `;
+        } else if (interestType === 'compound') {
+            formContainer.innerHTML = `
+                <input type="number" id="principal" placeholder="Principal Amount">
+                <input type="number" id="rate" placeholder="Rate of Interest (%)">
+                <input type="number" id="years" placeholder="Number of Years">
+                <button onclick="calculateCompoundInterest()">Calculate</button>
+            `;
+        } else if (interestType === 'recurring') {
+            formContainer.innerHTML = `
+                <input type="number" id="monthlyDeposit" placeholder="Monthly Deposit Amount">
+                <input type="number" id="rate" placeholder="Rate of Interest (%)">
+                <input type="number" id="years" placeholder="Number of Years">
+                <button onclick="calculateRecurringDeposit()">Calculate</button>
+            `;
+        }
+    }
+
+    function calculateSimpleInterest() {
+        const principal = parseFloat(document.getElementById('principal').value);
+        const rate = parseFloat(document.getElementById('rate').value);
+        const years = parseFloat(document.getElementById('years').value);
+
+        const simpleInterest = (principal * rate * years) / 100;
+        const totalAmount = principal + simpleInterest;
+        const growthPercentage = (simpleInterest / principal) * 100;
+
+        document.getElementById('resultContainer').innerHTML = `
+            <p>Total Amount: ${totalAmount.toFixed(2)}</p>
+            <p>Simple Interest: ${simpleInterest.toFixed(2)}</p>
+            <p>Growth Percentage: ${growthPercentage.toFixed(2)}%</p>
+        `;
+    }
+
+    function calculateCompoundInterest() {
+        const principal = parseFloat(document.getElementById('principal').value);
+        const rate = parseFloat(document.getElementById('rate').value) / 100;
+        const years = parseFloat(document.getElementById('years').value);
+
+        const totalAmount = principal * Math.pow((1 + rate), years);
+        const compoundInterest = totalAmount - principal;
+        const growthPercentage = (compoundInterest / principal) * 100;
+
+        document.getElementById('resultContainer').innerHTML = `
+            <p>Total Amount: ${totalAmount.toFixed(2)}</p>
+            <p>Compound Interest: ${compoundInterest.toFixed(2)}</p>
+            <p>Growth Percentage: ${growthPercentage.toFixed(2)}%</p>
+        `;
+    }
+
+    function calculateRecurringDeposit() {
+        const monthlyDeposit = parseFloat(document.getElementById('monthlyDeposit').value);
+        const annualRate = parseFloat(document.getElementById('rate').value) / 100;
+        const years = parseFloat(document.getElementById('years').value);
+        const n = 12; // Compounded monthly
+
+        const totalMonths = years * 12;
+        const basicDeposit = monthlyDeposit * totalMonths;
+        const totalAmount = monthlyDeposit * ((Math.pow(1 + annualRate / n, totalMonths) - 1) / (annualRate / n)) * (1 + annualRate / n);
+        const recurringInterest = totalAmount - basicDeposit;
+        const growthPercentage = (recurringInterest / basicDeposit) * 100;
+
+        document.getElementById('resultContainer').innerHTML = `
+            <p>Total Amount: ${totalAmount.toFixed(2)}</p>
+            <p>Recurring Interest: ${recurringInterest.toFixed(2)}</p>
+            <p>Total Deposit: ${basicDeposit.toFixed(2)}</p>
+            <p>Growth Percentage: ${growthPercentage.toFixed(2)}%</p>
+        `;
+    }
+</script>
+
+</body>
+</html>
